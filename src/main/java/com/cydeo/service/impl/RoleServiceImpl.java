@@ -5,7 +5,7 @@ import com.cydeo.service.RoleService;
 
 import java.util.List;
 
-public class RoleServiceImpl  extends AbstractMapService<RoleDTO,Long>implements RoleService {
+public class RoleServiceImpl  extends AbstractMapService<RoleDTO,Long> implements RoleService {
 
 
     @Override
