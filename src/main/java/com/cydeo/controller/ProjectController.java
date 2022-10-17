@@ -6,8 +6,10 @@ import com.cydeo.service.ProjectService;
 import com.cydeo.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -35,8 +37,15 @@ public class ProjectController {
     }
 
     @PostMapping("/create")
-    public String insertProject(@ModelAttribute("project") ProjectDTO project) {
+    public String insertProject(@Valid @ModelAttribute("project") ProjectDTO project, BindingResult bindingResult, Model model) {
 
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("managers", userService.findManagers());
+            model.addAttribute("projects", projectService.findAll());
+
+            return "/project/create";
+
+        }
 
         projectService.save(project);
 
@@ -52,10 +61,9 @@ public class ProjectController {
 
     }
 
-    @GetMapping("complete/{projectCode}")// projectCode for backend side
+    @GetMapping("/complete/{projectCode}")// projectCode for backend side
 
-    public String completeProject(@PathVariable("projectCode") String projectCode){
-
+    public String completeProject(@PathVariable("projectCode") String projectCode) {
         projectService.complete(projectService.findById(projectCode));
 
 
@@ -64,7 +72,7 @@ public class ProjectController {
 
     @GetMapping("/update/{projectCode}")
     public String editProject(Model model, @PathVariable("projectCode") String projectCode) {
-        model.addAttribute("project",projectService.findById(projectCode));
+        model.addAttribute("project", projectService.findById(projectCode));
 
         model.addAttribute("managers", userService.findManagers());
 
@@ -74,14 +82,25 @@ public class ProjectController {
     }
 
     @PostMapping("/update")
+    public String updateProject(@Valid @ModelAttribute("project") ProjectDTO project, BindingResult bindingResult, Model model) {
 
-    public String updateProject(@ModelAttribute("project") ProjectDTO project){
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute("managers", userService.findManagers());
+            model.addAttribute("projects", projectService.findAll());
+
+            return "/project/update";
+
+        }
+
         projectService.update(project);
+
         return "redirect:/project/create";
+
     }
 
     @GetMapping("/manager/project-status")
-    public String getProjectByManager(Model model){
+    public String getProjectByManager(Model model) {
 
         UserDTO manager = userService.findById("john@cydeo.com");
 
@@ -89,15 +108,20 @@ public class ProjectController {
         List<ProjectDTO> projects = projectService.getCountedListOfProjectDTO(manager);
 
 
-        model.addAttribute("projects",projects);
+        model.addAttribute("projects", projects);
 
 
         return "/manager/project-status";
 
     }
 
-
-
+    @GetMapping("/manager/complete/{projectCode}")
+    public String managerCompleteProject(@PathVariable("projectCode") String projectCode) {
+        projectService.complete(projectService.findById(projectCode));
+        return "redirect:/project/manager/project-status";
+    }
 
 
 }
+
+
