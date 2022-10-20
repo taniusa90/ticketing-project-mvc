@@ -28,18 +28,18 @@ public class ProjectController {
     public String createProject(Model model) {
 
         model.addAttribute("project", new ProjectDTO());
-
         model.addAttribute("managers", userService.findManagers());
-
         model.addAttribute("projects", projectService.findAll());
 
         return "/project/create";
+
     }
 
     @PostMapping("/create")
     public String insertProject(@Valid @ModelAttribute("project") ProjectDTO project, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
+
             model.addAttribute("managers", userService.findManagers());
             model.addAttribute("projects", projectService.findAll());
 
@@ -50,35 +50,30 @@ public class ProjectController {
         projectService.save(project);
 
         return "redirect:/project/create";
+
     }
 
     @GetMapping("/delete/{projectCode}")
     public String deleteProject(@PathVariable("projectCode") String projectCode) {
-
         projectService.deleteById(projectCode);
-
         return "redirect:/project/create";
-
     }
 
-    @GetMapping("/complete/{projectCode}")// projectCode for backend side
-
+    @GetMapping("/complete/{projectCode}")
     public String completeProject(@PathVariable("projectCode") String projectCode) {
         projectService.complete(projectService.findById(projectCode));
-
-
         return "redirect:/project/create";
     }
 
     @GetMapping("/update/{projectCode}")
-    public String editProject(Model model, @PathVariable("projectCode") String projectCode) {
+    public String editProject(@PathVariable("projectCode") String projectCode, Model model){
+
         model.addAttribute("project", projectService.findById(projectCode));
-
         model.addAttribute("managers", userService.findManagers());
-
         model.addAttribute("projects", projectService.findAll());
 
         return "/project/update";
+
     }
 
     @PostMapping("/update")
@@ -103,13 +98,9 @@ public class ProjectController {
     public String getProjectByManager(Model model) {
 
         UserDTO manager = userService.findById("john@cydeo.com");
-
-
         List<ProjectDTO> projects = projectService.getCountedListOfProjectDTO(manager);
 
-
         model.addAttribute("projects", projects);
-
 
         return "/manager/project-status";
 
